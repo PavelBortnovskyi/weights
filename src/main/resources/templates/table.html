@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="UA">
+<head>
+    <meta charset="UTF-8">
+    <title>Production statistics page</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .header-container {
+            background-image: url('/img/title_background.jpg');
+            background-size: cover;
+            padding: 20px;
+        }
+        .header-container label, h1 {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-container">
+    <h1>Основна статистика виробництва</h1>
+
+    <form class="form-inline" action="/api/v1/output/production_view" method="post" id="production_view_request">
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="startDate" class="mr-2">Початок періоду:</label>
+            <input type="date" class="form-control" id="startDate" name="startDate" required/>
+        </div>
+
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="endDate" class="mr-2">Кінець періоду:</label>
+            <input type="date" class="form-control" id="endDate" name="endDate" required/>
+        </div>
+
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="startTime" class="mr-2">Час початку:</label>
+            <input type="time" class="form-control" id="startTime" name="startTime" value="00:00" required/>
+        </div>
+
+        <div class="form-group mx-sm-3 mb-2">
+            <label for="endTime" class="mr-2">Час завершення:</label>
+            <input type="time" class="form-control" id="endTime" name="endTime" value="23:59" required/>
+        </div>
+
+        <div class="btn-group mb-2 ml-auto" role="group" aria-label="Navigation buttons" th:if="${dataPage != null and dataPage.totalPages > 1}">
+            <button type="button" class="btn btn-primary" th:if="${dataPage.hasPrevious()}" th:onclick="|navigate(dataPage, ${dataPage.previousPageable().pageNumber})|">Назад</button>
+            <button type="button" class="btn btn-primary" th:if="${dataPage.hasNext()}" th:onclick="|navigate(dataPage, ${dataPage.nextPageable().pageNumber})|">Вперед</button>
+        </div>
+
+        <button type="submit" class="btn btn-success mb-2 ml-auto">Показати</button>
+
+<!--        <input type="hidden" name="page" th:value="${dataPage?.number}"/>-->
+    </form>
+</div>
+
+<div class="text-center" th:if="${dataPage != null and not dataPage.isEmpty}">
+    <p>Показ інформації за: <span th:text="${dataPage.content[0].date}"></span></p>
+</div>
+
+<div>
+    <table id="dataTable" class="table table-bordered">
+        <thead class="thead-dark">
+        <tr>
+            <th>Час</th>
+            <th>Насіння, т</th>
+            <th>Лузга, т</th>
+            <th>Шрот, т</th>
+            <th>Масло, т</th>
+        </tr>
+        </thead>
+
+        <tr th:if="${dataPage == null or dataPage.isEmpty}">
+            <td colspan="5">Немає інформації за обраний період</td>
+        </tr>
+
+        <tbody th:if="${dataPage != null and not dataPage.isEmpty}">
+        <tr th:each="data,row : ${dataPage.content}" th:class="${row.odd}? 'odd'">
+            <td th:text="${data.time}"></td>
+            <td th:text="${data.seeds}" class="number"></td>
+            <td th:text="${data.hulls}" class="number"></td>
+            <td th:text="${data.meals}" class="number"></td>
+            <td th:text="${data.oil}" class="number"></td>
+        </tr>
+
+        <tr>
+            <td><b>УСЬОГО:</b></td>
+            <td><b><span th:text="${#aggregates.sum(dataPage.content.![seeds])}" class="number"></span></b></td>
+            <td><b><span th:text="${#aggregates.sum(dataPage.content.![hulls])}" class="number"></span></b></td>
+            <td><b><span th:text="${#aggregates.sum(dataPage.content.![meals])}" class="number"></span></b></td>
+            <td><b><span th:text="${#aggregates.sum(dataPage.content.![oil])}" class="number"></span></b></td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="/js/jquery-3.2.1.slim.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+    function navigate(dataPage, pageNumber) {
+        var tableBody = $('#dataTable tbody');
+        tableBody.empty();
+
+        var currentPage = dataPage[pageNumber];
+
+        for (var i = 0; i < currentPage.content.length; i++) {
+            var data = currentPage.content[i];
+            var row = $('<tr>');
+            row.append($('<td>').text(data.time));
+            row.append($('<td>').text(data.seeds).addClass('number'));
+            row.append($('<td>').text(data.hulls).addClass('number'));
+            row.append($('<td>').text(data.meals).addClass('number'));
+            row.append($('<td>').text(data.oil).addClass('number'));
+            tableBody.append(row);
+        }
+
+        $('#dateInfo').text('Показ информации за: ' + currentPage.content[0].date);
+    }
+</script>
+
+</body>
+</html>
