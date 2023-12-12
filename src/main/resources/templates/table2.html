@@ -57,12 +57,13 @@
             <input type="time" class="form-control" id="endTime" name="endTime" value="23:59" required/>
         </div>
 
-        <input type="hidden" name="page" th:value="${dataPage != null ? dataPage.number : 0}"/>
+        <div id="currentPage" data-page="/*[[ ${dataPage[pageNumber]} ]]*/"></div>
+        <input type="hidden" id="page_number" name="page" th:value="${dataPage != null ? dataPage.number : 0}"/>
 
         <div class="btn-group mb-2 ml-auto" role="group" aria-label="Navigation buttons"
              th:if="${dataPage != null and dataPage.totalPages > 1}">
-            <button type="button" id="navigation-back-button" onclick="navigateBack()" class="btn btn-primary btn-back" th:if="${page > 0}">Назад</button>
-            <button type="button" id="navigation-forward-button" onclick="navigateForward()" class="btn btn-primary btn-forward" th:if="${page < dataPage.totalPages - 1}">Вперед</button>
+            <button type="button" id="navigation-back-button" onclick="navigateBack(${dataPage.totalPages})" class="btn btn-primary btn-back" th:if="${page > 0}">Назад</button>
+            <button type="button" id="navigation-forward-button" onclick="navigateForward(${dataPage.totalPages})" class="btn btn-primary btn-forward" th:if="${page < dataPage.totalPages - 1}">Вперед</button>
         </div>
 
         <button type="submit" class="btn btn-success mb-2 ml-auto">Показати</button>
@@ -110,55 +111,45 @@
     </table>
 </div>
 
-
-
 <script>
-    $(document).ready(function() {
-        $('#navigation-back-button').click(function() {
-            navigateBack();
-        });
-        $('#navigation-forward-button').click(function() {
-            navigateForward();
-        });
-    });
 
-    // function redrawTable(pageNumber) {
-    //     var tableBody = $('#dataTable tbody');
-    //     tableBody.empty();
-    //
-    //     var currentPage = ${dataPage[pageNumber]};
-    //
-    //     for (var i = 0; i < currentPage.content.length; i++) {
-    //         var data = currentPage.content[i];
-    //         var row = $('<tr>');
-    //         row.append($('<td>').text(data.time));
-    //         row.append($('<td>').text(data.seeds).addClass('number'));
-    //         row.append($('<td>').text(data.hulls).addClass('number'));
-    //         row.append($('<td>').text(data.meals).addClass('number'));
-    //         row.append($('<td>').text(data.oil).addClass('number'));
-    //         tableBody.append(row);
-    //     }
-    //
-    //     $('#dateInfo').text('Показ информации за: ' + currentPage.content[0].date);
-    // }
+    function redrawTable(pageNumber) {
+        var tableBody = $('#dataTable tbody');
+        tableBody.empty();
 
-    // function navigate(direction) {
-    //     var currentPageNumber = parseInt($('#page').val());
-    //     var newPageNumber = currentPageNumber + direction;
-    //     if (newPageNumber >= 0 && newPageNumber < ${dataPage.totalPages}) {
-    //         $('#page').val(newPageNumber);
-    //         redrawTable(newPageNumber);
-    //     }
-    // }
+        var currentPageData = JSON.parse(document.getElementById('currentPage').getAttribute('data-page'));
+        var currentPage = currentPageData !== null ? currentPageData : null;
 
-    function navigateBack() {
-        console.log("Navigating backward")
-        navigate(-1);
+        for (var i = 0; i < currentPage.content.length; i++) {
+            var data = currentPage.content[i];
+            var row = $('<tr>');
+            row.append($('<td>').text(data.time));
+            row.append($('<td>').text(data.seeds).addClass('number'));
+            row.append($('<td>').text(data.hulls).addClass('number'));
+            row.append($('<td>').text(data.meals).addClass('number'));
+            row.append($('<td>').text(data.oil).addClass('number'));
+            tableBody.append(row);
+        }
+
+        $('#dateInfo').text('Показ информации за: ' + currentPage.content[0].date);
     }
 
-    function navigateForward() {
+    function navigate(direction, totalPages) {
+        var currentPageNumber = parseInt($('#page_number').val());
+        var newPageNumber = currentPageNumber + direction;
+        if (newPageNumber >= 0 && newPageNumber < totalPages) {
+            $('#page_number').val(newPageNumber);
+            redrawTable(newPageNumber);
+        }}
+
+    function navigateBack(totalPages) {
+        console.log("Navigating backward")
+        navigate(-1, totalPages);
+    }
+
+    function navigateForward(totalPages) {
         console.log("Navigating forward")
-        navigate(1);
+        navigate(1, totalPages);
     }
 </script>
 </body>
