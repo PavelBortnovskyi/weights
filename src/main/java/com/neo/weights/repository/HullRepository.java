@@ -23,4 +23,8 @@ public interface HullRepository extends RepositoryInterface<Hull> {
                                     @Param("startTime") LocalTime startTime,
                                     @Param("endTime") LocalTime endTime,
                                     Pageable pageable);
+
+    void deleteByDateBefore(LocalDate date);
+
+    long countByDateBefore(LocalDate date);
 }

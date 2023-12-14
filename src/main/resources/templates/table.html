@@ -70,9 +70,9 @@
         <tr>
             <th>Час</th>
             <th>Насіння, т</th>
-            <th>Лузга, т</th>
+            <th>Лушпиння, т</th>
             <th>Шрот, т</th>
-            <th>Масло, т</th>
+            <th>Олія, т</th>
         </tr>
         </thead>
 
@@ -107,29 +107,20 @@
 
 <script>
     function navigate(direction) {
-        // Получаем текущую строку запроса
         var currentUrl = window.location.search;
 
-        // Парсим строку запроса, чтобы получить объект URLSearchParams
         var urlSearchParams = new URLSearchParams(currentUrl);
 
-        // Получаем значения параметров из объекта URLSearchParams
         var startDate = urlSearchParams.get('startDate');
         var endDate = urlSearchParams.get('endDate');
         var startTime = urlSearchParams.get('startTime');
         var endTime = urlSearchParams.get('endTime');
         var currentPageNumber = parseInt(urlSearchParams.get('pageNumber'));
 
-        // Увеличиваем номер страницы на 1
         var newPageNumber = currentPageNumber + direction;
-
-        // Устанавливаем новое значение параметра 'page'
         urlSearchParams.set('pageNumber', newPageNumber);
-
-        // Получаем новую строку запроса с обновленным значением 'page'
         var newUrl = '/api/v1/output/production_view?' + urlSearchParams.toString();
 
-        // Перенаправляем пользователя по новой ссылке
         window.location.href = newUrl;
     }
 </script>

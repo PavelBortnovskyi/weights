@@ -22,8 +22,6 @@ public abstract class BaseEntity implements Serializable {
     @Column(name = "id", nullable = false, insertable = false, updatable = false)
     private long id;
 
-    //private LocalDateTime timestamp = LocalDateTime.now();
-
     private LocalDate date = LocalDate.now();
 
     private LocalTime time = LocalTime.now();

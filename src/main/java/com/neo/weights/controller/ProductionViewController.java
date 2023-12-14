@@ -1,6 +1,7 @@
 package com.neo.weights.controller;
 
 import com.neo.weights.model.TableData;
+import com.neo.weights.service.DataCleanupService;
 import com.neo.weights.service.TableDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,6 +28,8 @@ public class ProductionViewController {
 
     private final TableDataService tableDataService;
 
+    private final DataCleanupService dataCleanupService;
+
     //http://localhost:8080/api/v1/output/production_view
     @GetMapping("/production_view")
     public ModelAndView handleView(Model model, HttpServletRequest request, @RequestParam(name = "submitted", defaultValue = "false") String submitted,
@@ -44,7 +47,7 @@ public class ProductionViewController {
                 model.addAttribute("dataPage",dataPage);
             }
         }
-        return new ModelAndView("table");
+        return new ModelAndView("table2");
     }
 
     @PostMapping("/production_view")
@@ -52,14 +55,18 @@ public class ProductionViewController {
                                              @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
                                              @RequestParam("startTime") @DateTimeFormat(pattern = "HH:mm") LocalTime startTime,
                                              @RequestParam("endTime") @DateTimeFormat(pattern = "HH:mm") LocalTime endTime,
+                                             @RequestParam(name = "cutoffDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate cutoffDate,
+                                             @RequestParam(name = "records-age-type", required = false) String ageType,
+                                             @RequestParam(name = "records-age-value", required = false) Integer ageValue,
                                              RedirectAttributes redirectAttributes) {
-        System.out.println("Incoming request...");
         redirectAttributes.addAttribute("startDate", startDate);
         redirectAttributes.addAttribute("endDate", endDate);
         redirectAttributes.addAttribute("startTime", startTime);
         redirectAttributes.addAttribute("endTime", endTime);
         redirectAttributes.addAttribute("pageNumber", 0);
         redirectAttributes.addAttribute("submitted", "true");
+        if (cutoffDate != null) dataCleanupService.deleteAllBefore(cutoffDate);
+        if (ageType != null && ageValue != null) dataCleanupService.setDateCleanupParams(ageType, ageValue);
         return new ModelAndView("redirect:/api/v1/output/production_view");
     }
 }

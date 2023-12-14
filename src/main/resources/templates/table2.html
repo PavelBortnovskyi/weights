@@ -5,10 +5,6 @@
     <title>Production statistics page</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <script src="/js/jquery-3.6.4.min.js"></script>
-    <script src="/js/popper.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
-
     <style>
         body {
             background-color: #f8f9fa;
@@ -28,129 +24,202 @@
         .header-container label, h1 {
             color: #fff;
         }
+
+        .custom-width {
+            max-width: 170px; /* максимальна ширина для поля дати у вкладці налаштувань */
+            width: 100%;
+        }
+
+        .custom-width2 {
+            max-width: 50px; /* максимальна ширина для поля числа у вкладці налаштувань */
+            width: 100%;
+        }
+
+        .tab-content {
+            margin-top: 20px;
+        }
+
+        .nav-tabs {
+            border-bottom: 0; /* Прибирає контур знизу контейнера вкладок */
+        }
+
+        .nav-tabs .nav-link {
+            color: white; /* Колір тексту для неактивної вкладки */
+            background-color: darkblue; /* Колір фону для неактивної вкладки */
+        }
+
+        .nav-tabs .nav-link.active {
+            color: white !important; /* Колір тексту для активної вкладки */
+            background-color: blue !important; /* Колір фону для активної вкладки */
+        }
+
+        .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link {
+            border-color: transparent; /* Колір контуру вкладок */
+            border-width: 0; /* Ширина контуру вкладок (0 для вимкнення контуру) */
+        }
     </style>
 </head>
-
 <body>
+
 <div class="header-container">
     <h1>Основна статистика виробництва</h1>
 
-    <form class="form-inline" action="/api/v1/output/production_view" method="post" id="production_view_request"
-          th:object="${dataPage}">
-        <div class="form-group mx-sm-3 mb-2">
-            <label for="startDate" class="mr-2">Початок періоду:</label>
-            <input type="date" class="form-control" id="startDate" name="startDate" required/>
-        </div>
-
-        <div class="form-group mx-sm-3 mb-2">
-            <label for="endDate" class="mr-2">Кінець періоду:</label>
-            <input type="date" class="form-control" id="endDate" name="endDate" required/>
-        </div>
-
-        <div class="form-group mx-sm-3 mb-2">
-            <label for="startTime" class="mr-2">Час початку:</label>
-            <input type="time" class="form-control" id="startTime" name="startTime" value="00:00" required/>
-        </div>
-
-        <div class="form-group mx-sm-3 mb-2">
-            <label for="endTime" class="mr-2">Час завершення:</label>
-            <input type="time" class="form-control" id="endTime" name="endTime" value="23:59" required/>
-        </div>
-
-        <div id="currentPage" data-page="/*[[ ${dataPage[pageNumber]} ]]*/"></div>
-        <input type="hidden" id="page_number" name="page" th:value="${dataPage != null ? dataPage.number : 0}"/>
-
-        <div class="btn-group mb-2 ml-auto" role="group" aria-label="Navigation buttons"
-             th:if="${dataPage != null and dataPage.totalPages > 1}">
-            <button type="button" id="navigation-back-button" onclick="navigateBack(${dataPage.totalPages})" class="btn btn-primary btn-back" th:if="${page > 0}">Назад</button>
-            <button type="button" id="navigation-forward-button" onclick="navigateForward(${dataPage.totalPages})" class="btn btn-primary btn-forward" th:if="${page < dataPage.totalPages - 1}">Вперед</button>
-        </div>
-
-        <button type="submit" class="btn btn-success mb-2 ml-auto">Показати</button>
-    </form>
+    <ul class="nav nav-tabs" id="pageTabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="data-tab" data-toggle="tab" href="#data">Дані</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="settings-tab" data-toggle="tab" href="#settings">Налаштування</a>
+        </li>
+    </ul>
 </div>
 
-<div class="text-center" th:if="${dataPage != null and not dataPage.isEmpty}">
-    <p>Показ інформації за: <span th:text="${dataPage.content[0].date}"></span></p>
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="data">
+        <form class="form-inline" action="/api/v1/output/production_view" method="post"
+              id="production_view_request">
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="startDate" class="mr-2">Початок періоду:</label>
+                <input type="date" class="form-control" id="startDate" name="startDate" required/>
+            </div>
+
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="endDate" class="mr-2">Кінець періоду:</label>
+                <input type="date" class="form-control" id="endDate" name="endDate" required/>
+            </div>
+
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="startTime" class="mr-2">Час початку:</label>
+                <input type="time" class="form-control" id="startTime" name="startTime" value="00:00" required/>
+            </div>
+
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="endTime" class="mr-2">Час завершення:</label>
+                <input type="time" class="form-control" id="endTime" name="endTime" value="23:59" required/>
+            </div>
+
+            <div class="btn-group mb-2 ml-auto" role="group" aria-label="Navigation buttons"
+                 th:if="${dataPage != null and dataPage.totalPages > 1}">
+                <button type="button" class="btn btn-primary" th:if="${dataPage.hasPrevious()}"
+                        th:onclick="navigate(-1)">Назад
+                </button>
+                <button type="button" class="btn btn-primary" th:if="${dataPage.hasNext()}"
+                        th:onclick="navigate(1)">
+                    Вперед
+                </button>
+            </div>
+
+            <button type="submit" class="btn btn-success mb-2 ml-auto">Показати</button>
+
+        </form>
+        <div class="text-center" th:if="${dataPage != null and not dataPage.isEmpty}">
+            <p>Показ інформації за: <span th:text="${dataPage.content[0].date}"></span></p>
+        </div>
+
+        <div>
+            <table id="dataTable" class="table table-bordered">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Час</th>
+                    <th>Насіння, т</th>
+                    <th>Лушпиння, т</th>
+                    <th>Шрот, т</th>
+                    <th>Олія, т</th>
+                </tr>
+                </thead>
+
+                <tr th:if="${dataPage == null or dataPage.isEmpty}">
+                    <td colspan="5">Немає інформації за обраний період</td>
+                </tr>
+
+                <tbody th:if="${dataPage != null and not dataPage.isEmpty}">
+                <tr th:each="data,row : ${dataPage.content}" th:class="${row.odd}? 'odd'">
+                    <td th:text="${data.time}"></td>
+                    <td th:text="${data.seeds}" class="number"></td>
+                    <td th:text="${data.hulls}" class="number"></td>
+                    <td th:text="${data.meals}" class="number"></td>
+                    <td th:text="${data.oil}" class="number"></td>
+                </tr>
+
+                <tr>
+                    <td><b>УСЬОГО:</b></td>
+                    <td><b><span th:text="${#aggregates.sum(dataPage.content.![seeds])}" class="number"></span></b></td>
+                    <td><b><span th:text="${#aggregates.sum(dataPage.content.![hulls])}" class="number"></span></b></td>
+                    <td><b><span th:text="${#aggregates.sum(dataPage.content.![meals])}" class="number"></span></b></td>
+                    <td><b><span th:text="${#aggregates.sum(dataPage.content.![oil])}" class="number"></span></b></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Вкладка с настройками -->
+    <div class="tab-pane fade" id="settings">
+        <form id="delete-date-settings-form">
+            <div>Нижче ви можете обрати дату, всі записи до якої
+            буде видалено із БД після натиснення кнопки "Видалити дані".
+            За замовчуванням сервер буде видаляти усі дані які старіші ніж рік від поточної дати.
+            </div>
+            <div class="form-group">
+                <label for="cutoffDate">Оберіть дату: </label>
+                <input type="date" class="form-control custom-width" id="cutoffDate" name="cutoffDate" required/>
+            </div>
+            <button type="submit" class="btn btn-danger">Видалити дані</button>
+        </form>
+        <form id="max-records-age-settings-form">
+            <div>Нижче ви можете обрати максимальний діапазон
+            збереження даних у БД. Від величини діапазону прямопропорційно залежатиме розмір БД, та її швидкодія.
+            Для підтвердження натисніснь кнопку "Застосувати"
+            </div>
+            <div class="form-group">
+            <label for="records-age-type">Выберите период:</label>
+            <select id="records-age-type" name="duration">
+                <option value="days">Дні</option>
+                <option value="months">Місяці</option>
+                <option value="years">Роки</option>
+            </select>
+            <label for="records-age-value">Кількість:</label>
+            <input type="number" class="form-control custom-width2" id="records-age-value" name="durationValue" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-success">Застосувати</button>
+        </form>
+    </div>
 </div>
 
-<div>
-    <table id="dataTable" class="table table-bordered">
-        <thead class="thead-dark">
-        <tr>
-            <th>Час</th>
-            <th>Насіння, т</th>
-            <th>Лузга, т</th>
-            <th>Шрот, т</th>
-            <th>Масло, т</th>
-        </tr>
-        </thead>
-
-        <tr th:if="${dataPage == null or dataPage.isEmpty}">
-            <td colspan="5">Нема інформації за обраний період</td>
-        </tr>
-
-        <tbody th:if="${dataPage != null and not dataPage.isEmpty}">
-        <tr th:each="data,row : ${dataPage.content}" th:class="${row.odd}? 'odd'">
-            <td th:text="${data.time}"></td>
-            <td th:text="${data.seeds}" class="number"></td>
-            <td th:text="${data.hulls}" class="number"></td>
-            <td th:text="${data.meals}" class="number"></td>
-            <td th:text="${data.oil}" class="number"></td>
-        </tr>
-
-        <tr>
-            <td><b>УСЬОГО:</b></td>
-            <td><b><span th:text="${#aggregates.sum(dataPage.content.![seeds])}" class="number"></span></b></td>
-            <td><b><span th:text="${#aggregates.sum(dataPage.content.![hulls])}" class="number"></span></b></td>
-            <td><b><span th:text="${#aggregates.sum(dataPage.content.![meals])}" class="number"></span></b></td>
-            <td><b><span th:text="${#aggregates.sum(dataPage.content.![oil])}" class="number"></span></b></td>
-            <td></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+<script src="/js/jquery-3.2.1.slim.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <script>
+    function navigate(direction) {
+        var currentUrl = window.location.search;
 
-    function redrawTable(pageNumber) {
-        var tableBody = $('#dataTable tbody');
-        tableBody.empty();
+        var urlSearchParams = new URLSearchParams(currentUrl);
 
-        var currentPageData = JSON.parse(document.getElementById('currentPage').getAttribute('data-page'));
-        var currentPage = currentPageData !== null ? currentPageData : null;
+        var startDate = urlSearchParams.get('startDate');
+        var endDate = urlSearchParams.get('endDate');
+        var startTime = urlSearchParams.get('startTime');
+        var endTime = urlSearchParams.get('endTime');
+        var currentPageNumber = parseInt(urlSearchParams.get('pageNumber'));
 
-        for (var i = 0; i < currentPage.content.length; i++) {
-            var data = currentPage.content[i];
-            var row = $('<tr>');
-            row.append($('<td>').text(data.time));
-            row.append($('<td>').text(data.seeds).addClass('number'));
-            row.append($('<td>').text(data.hulls).addClass('number'));
-            row.append($('<td>').text(data.meals).addClass('number'));
-            row.append($('<td>').text(data.oil).addClass('number'));
-            tableBody.append(row);
-        }
-
-        $('#dateInfo').text('Показ информации за: ' + currentPage.content[0].date);
-    }
-
-    function navigate(direction, totalPages) {
-        var currentPageNumber = parseInt($('#page_number').val());
         var newPageNumber = currentPageNumber + direction;
-        if (newPageNumber >= 0 && newPageNumber < totalPages) {
-            $('#page_number').val(newPageNumber);
-            redrawTable(newPageNumber);
-        }}
+        urlSearchParams.set('pageNumber', newPageNumber);
+        var newUrl = '/api/v1/output/production_view?' + urlSearchParams.toString();
 
-    function navigateBack(totalPages) {
-        console.log("Navigating backward")
-        navigate(-1, totalPages);
+        window.location.href = newUrl;
     }
 
-    function navigateForward(totalPages) {
-        console.log("Navigating forward")
-        navigate(1, totalPages);
+    function deleteData() {
+        // ... Ваш код для удаления данных ...
     }
+
+    // Инициализация табов Bootstrap
+    $('#myTabs a').on('click', function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
 </script>
+
 </body>
 </html>
