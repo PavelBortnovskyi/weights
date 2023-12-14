@@ -50,8 +50,8 @@
         </div>
 
         <div class="btn-group mb-2 ml-auto" role="group" aria-label="Navigation buttons" th:if="${dataPage != null and dataPage.totalPages > 1}">
-            <button type="button" class="btn btn-primary" th:if="${dataPage.hasPrevious()}" th:onclick="|navigate(dataPage, ${dataPage.previousPageable().pageNumber})|">Назад</button>
-            <button type="button" class="btn btn-primary" th:if="${dataPage.hasNext()}" th:onclick="|navigate(dataPage, ${dataPage.nextPageable().pageNumber})|">Вперед</button>
+            <button type="button" class="btn btn-primary" th:if="${dataPage.hasPrevious()}" th:onclick="navigate(-1)">Назад</button>
+            <button type="button" class="btn btn-primary" th:if="${dataPage.hasNext()}" th:onclick="navigate(1)">Вперед</button>
         </div>
 
         <button type="submit" class="btn btn-success mb-2 ml-auto">Показати</button>
@@ -106,24 +106,31 @@
 <script src="/js/bootstrap.min.js"></script>
 
 <script>
-    function navigate(dataPage, pageNumber) {
-        var tableBody = $('#dataTable tbody');
-        tableBody.empty();
+    function navigate(direction) {
+        // Получаем текущую строку запроса
+        var currentUrl = window.location.search;
 
-        var currentPage = dataPage[pageNumber];
+        // Парсим строку запроса, чтобы получить объект URLSearchParams
+        var urlSearchParams = new URLSearchParams(currentUrl);
 
-        for (var i = 0; i < currentPage.content.length; i++) {
-            var data = currentPage.content[i];
-            var row = $('<tr>');
-            row.append($('<td>').text(data.time));
-            row.append($('<td>').text(data.seeds).addClass('number'));
-            row.append($('<td>').text(data.hulls).addClass('number'));
-            row.append($('<td>').text(data.meals).addClass('number'));
-            row.append($('<td>').text(data.oil).addClass('number'));
-            tableBody.append(row);
-        }
+        // Получаем значения параметров из объекта URLSearchParams
+        var startDate = urlSearchParams.get('startDate');
+        var endDate = urlSearchParams.get('endDate');
+        var startTime = urlSearchParams.get('startTime');
+        var endTime = urlSearchParams.get('endTime');
+        var currentPageNumber = parseInt(urlSearchParams.get('pageNumber'));
 
-        $('#dateInfo').text('Показ информации за: ' + currentPage.content[0].date);
+        // Увеличиваем номер страницы на 1
+        var newPageNumber = currentPageNumber + direction;
+
+        // Устанавливаем новое значение параметра 'page'
+        urlSearchParams.set('pageNumber', newPageNumber);
+
+        // Получаем новую строку запроса с обновленным значением 'page'
+        var newUrl = '/api/v1/output/production_view?' + urlSearchParams.toString();
+
+        // Перенаправляем пользователя по новой ссылке
+        window.location.href = newUrl;
     }
 </script>
 

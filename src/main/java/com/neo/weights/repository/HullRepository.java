@@ -17,7 +17,7 @@ import java.time.LocalTime;
 public interface HullRepository extends RepositoryInterface<Hull> {
 
     @Query(value = "SELECT h FROM Hull h WHERE h.date BETWEEN :startDate AND :endDate " +
-            "AND h.time >= :startTime AND h.time <= :endTime ORDER BY h.time ASC")
+            "AND h.time >= :startTime AND h.time <= :endTime ORDER BY h.date ASC, h.time ASC")
     Page<Hull> getHullsDataAtPeriod(@Param("startDate") LocalDate startDate,
                                     @Param("endDate") LocalDate endDate,
                                     @Param("startTime") LocalTime startTime,

@@ -19,7 +19,7 @@ import java.time.LocalTime;
 public interface OilRepository extends JpaRepository<Oil, Long> {
 
     @Query(value = "SELECT o FROM Oil o WHERE o.date BETWEEN :startDate AND :endDate " +
-            "AND o.time >= :startTime AND o.time <= :endTime ORDER BY o.time ASC")
+            "AND o.time >= :startTime AND o.time <= :endTime ORDER BY o.date ASC, o.time ASC")
     Page<Oil> getOilDataAtPeriod(@Param("startDate") LocalDate startDate,
                                     @Param("endDate") LocalDate endDate,
                                     @Param("startTime") LocalTime startTime,

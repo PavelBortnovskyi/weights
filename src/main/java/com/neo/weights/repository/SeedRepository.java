@@ -16,7 +16,7 @@ import java.time.LocalTime;
 public interface SeedRepository extends RepositoryInterface<Seed> {
 
     @Query(value = "SELECT s FROM Seed s WHERE s.date BETWEEN :startDate AND :endDate " +
-            "AND s.time >= :startTime AND s.time <= :endTime ORDER BY s.time ASC")
+            "AND s.time >= :startTime AND s.time <= :endTime ORDER BY s.date ASC, s.time ASC")
     Page<Seed> getSeedsDataAtPeriod(@Param("startDate") LocalDate startDate,
                                     @Param("endDate") LocalDate endDate,
                                     @Param("startTime") LocalTime startTime,

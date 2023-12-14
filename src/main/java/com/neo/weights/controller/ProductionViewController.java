@@ -29,21 +29,22 @@ public class ProductionViewController {
 
     //http://localhost:8080/api/v1/output/production_view
     @GetMapping("/production_view")
-    public ModelAndView handleView(Model model, HttpServletRequest request, @RequestParam(name = "submitted", defaultValue = "false") String submitted) {
+    public ModelAndView handleView(Model model, HttpServletRequest request, @RequestParam(name = "submitted", defaultValue = "false") String submitted,
+                                   @RequestParam(name = "pageNumber", defaultValue = "0") Integer pageNumber) {
         if (submitted.equals("true")) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy");
             LocalDate startDate = LocalDate.parse(request.getParameter("startDate"), formatter);
             LocalDate endDate = LocalDate.parse(request.getParameter("endDate"), formatter);;
             LocalTime startTime = LocalTime.parse(request.getParameter("startTime"));
             LocalTime endTime = LocalTime.parse(request.getParameter("endTime"));
-            System.out.println("Got submission");
+            int hoursDelta = Math.abs(endTime.getHour() - startTime.getHour()) + 1;
             if (startDate != null) {
-                Page<TableData> dataPage = tableDataService.getPageDataFromPeriod(startDate, endDate, startTime, endTime, Pageable.ofSize(12));
+                Page<TableData> dataPage = tableDataService.getPageDataFromPeriod(startDate, endDate, startTime, endTime, Pageable.ofSize(hoursDelta).withPage(pageNumber));
                 System.out.println(dataPage.getTotalPages());
                 model.addAttribute("dataPage",dataPage);
-            } else System.out.println("startDate param empty!");
-        } else System.out.println("Processing get without parameters");
-        return new ModelAndView("table2");
+            }
+        }
+        return new ModelAndView("table");
     }
 
     @PostMapping("/production_view")
@@ -57,8 +58,8 @@ public class ProductionViewController {
         redirectAttributes.addAttribute("endDate", endDate);
         redirectAttributes.addAttribute("startTime", startTime);
         redirectAttributes.addAttribute("endTime", endTime);
+        redirectAttributes.addAttribute("pageNumber", 0);
         redirectAttributes.addAttribute("submitted", "true");
-        System.out.println("Session attributes set. Redirecting to view page...");
         return new ModelAndView("redirect:/api/v1/output/production_view");
     }
 }

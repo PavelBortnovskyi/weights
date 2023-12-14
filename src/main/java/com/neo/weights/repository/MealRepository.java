@@ -18,7 +18,7 @@ import java.time.LocalTime;
 public interface MealRepository extends RepositoryInterface<Meal> {
 
     @Query(value = "SELECT m FROM Meal m WHERE m.date BETWEEN :startDate AND :endDate " +
-            "AND m.time >= :startTime AND m.time <= :endTime ORDER BY m.time ASC")
+            "AND m.time >= :startTime AND m.time <= :endTime ORDER BY m.date ASC, m.time ASC")
     Page<Meal> getMealsDataAtPeriod(@Param("startDate") LocalDate startDate,
                                     @Param("endDate") LocalDate endDate,
                                     @Param("startTime") LocalTime startTime,
