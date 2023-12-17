@@ -154,7 +154,6 @@
         </div>
     </div>
 
-    <!-- Вкладка с настройками -->
     <div class="tab-pane fade" id="settings">
         <form id="max-records-age-settings-form">
             <div>Нижче ви можете обрати максимальний діапазон
@@ -191,6 +190,23 @@
                 <input type="date" class="form-control custom-width" id="delete-date" name="deleteDate" required/>
             </div>
             <button type="button" class="btn btn-danger" th:onclick="submitDeleteDateForm()">Видалити дані</button>
+        </form>
+        <form id="exportForm" action="/export" method="post">
+            <div>Нижче ви можете обрати діапазон дат для експорту в Excel файл, вказавши до нього шлях та натиснувши кнопку "Експортувати".
+            </div>
+            <label for="startDate">Start Date:</label>
+            <input type="date" class="form-control custom-width" id="exportStartDate" name="exportStartDate" required>
+
+            <label for="endDate">End Date:</label>
+            <input type="date" class="form-control custom-width" id="exportEndDate" name="exportEndDate" required>
+
+            <label for="startTime" class="mr-2">Час початку:</label>
+            <input type="time" class="form-control" id="exportStartTime" name="startTime" value="00:00" required/>
+
+            <label for="endTime" class="mr-2">Час завершення:</label>
+            <input type="time" class="form-control" id="exportEndTime" name="endTime" value="23:59" required/>
+
+            <button type="submit" th:onclick="submitExportForm()">Експортувати</button>
         </form>
     </div>
 </div>
@@ -275,6 +291,24 @@
         var formData = new FormData(form);
 
         fetch('/api/v1/data/delete_by_date', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                toastr.success('Операція завершена успішно!', 'Успіх');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function submitExportForm() {
+        var form = document.getElementById('exportForm');
+        var formData = new FormData(form);
+
+        fetch('/api/v1/data/export', {
             method: 'POST',
             body: formData
         })

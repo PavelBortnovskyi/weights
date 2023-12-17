@@ -1,6 +1,8 @@
 package com.neo.weights.controller;
 
+import com.neo.weights.dto.InputDataDTO;
 import com.neo.weights.service.DBCleanupService;
+import com.neo.weights.service.TableDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,13 +12,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+
 @Log4j2
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/data")
-public class DataCleanupController {
+public class DataManageController {
 
     private final DBCleanupService DBCleanupService;
+    private final TableDataService tableDataService;
+
+    @PostMapping(path = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void handleDataInput(@RequestBody InputDataDTO inputDataDTO) {
+        tableDataService.saveData(inputDataDTO);
+    }
 
     @PostMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
     private ResponseEntity<String> handleSaveSettingsParam(@RequestParam(name = "records-age-type") String ageType,
@@ -36,4 +45,5 @@ public class DataCleanupController {
         DBCleanupService.deleteDate(deleteDate);
         return ResponseEntity.ok("Records at " + deleteDate + " was deleted");
     }
+
 }
