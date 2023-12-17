@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Production statistics page</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/toastr.min.css" rel="stylesheet">
+
     <style>
         body {
             background-color: #f8f9fa;
@@ -31,7 +32,7 @@
         }
 
         .custom-width2 {
-            max-width: 50px; /* максимальна ширина для поля числа у вкладці налаштувань */
+            max-width: 75px; /* максимальна ширина для поля числа у вкладці налаштувань */
             width: 100%;
         }
 
@@ -104,8 +105,7 @@
                         th:onclick="navigate(-1)">Назад
                 </button>
                 <button type="button" class="btn btn-primary" th:if="${dataPage.hasNext()}"
-                        th:onclick="navigate(1)">
-                    Вперед
+                        th:onclick="navigate(1)">Вперед
                 </button>
             </div>
 
@@ -156,42 +156,61 @@
 
     <!-- Вкладка с настройками -->
     <div class="tab-pane fade" id="settings">
-        <form id="delete-date-settings-form">
-            <div>Нижче ви можете обрати дату, всі записи до якої
-            буде видалено із БД після натиснення кнопки "Видалити дані".
-            За замовчуванням сервер буде видаляти усі дані які старіші ніж рік від поточної дати.
-            </div>
-            <div class="form-group">
-                <label for="cutoffDate">Оберіть дату: </label>
-                <input type="date" class="form-control custom-width" id="cutoffDate" name="cutoffDate" required/>
-            </div>
-            <button type="submit" class="btn btn-danger">Видалити дані</button>
-        </form>
         <form id="max-records-age-settings-form">
             <div>Нижче ви можете обрати максимальний діапазон
             збереження даних у БД. Від величини діапазону прямопропорційно залежатиме розмір БД, та її швидкодія.
-            Для підтвердження натисніснь кнопку "Застосувати"
+            Для підтвердження натисніть кнопку "Застосувати". За замовчуванням сервер буде видаляти усі дані які старіші ніж рік від поточної дати.
             </div>
             <div class="form-group">
-            <label for="records-age-type">Выберите период:</label>
-            <select id="records-age-type" name="duration">
+            <label for="records-age-type">Оберіть період:</label>
+            <select id="records-age-type" name="records-age-type">
                 <option value="days">Дні</option>
                 <option value="months">Місяці</option>
                 <option value="years">Роки</option>
             </select>
             <label for="records-age-value">Кількість:</label>
-            <input type="number" class="form-control custom-width2" id="records-age-value" name="durationValue" min="1" required>
+            <input type="number" class="form-control custom-width2" id="records-age-value" name="records-age-value" min="1" required>
             </div>
-            <button type="submit" class="btn btn-success">Застосувати</button>
+            <button type="button" class="btn btn-success" th:onclick="submitMaxRecordsAgeSettingsForm()">Застосувати</button>
+        </form>
+        <form id="delete-all-before-date-settings-form">
+            <div>Нижче ви можете обрати дату, всі записи до якої
+                буде видалено із БД після натиснення кнопки "Видалити дані".
+            </div>
+            <div class="form-group">
+                <label for="cutoffDate">Оберіть дату: </label>
+                <input type="date" class="form-control custom-width" id="cutoffDate" name="cutoffDate" required/>
+            </div>
+            <button type="button" class="btn btn-danger" th:onclick="submitDeleteAllBeforeDateSettingsForm()">Видалити дані</button>
+        </form>
+        <form id="delete-date-settings-form">
+            <div>Нижче ви можете обрати дату за яку буде видалено усі данні після натиснення кнопки "Видалити дані".
+            </div>
+            <div class="form-group">
+                <label for="delete-date">Оберіть дату: </label>
+                <input type="date" class="form-control custom-width" id="delete-date" name="deleteDate" required/>
+            </div>
+            <button type="button" class="btn btn-danger" th:onclick="submitDeleteDateForm()">Видалити дані</button>
         </form>
     </div>
 </div>
 
-<script src="/js/jquery-3.2.1.slim.min.js"></script>
+<script src="/js/jquery.min.js"></script>
 <script src="/js/popper.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
+<script src="/js/toastr.min.js"></script>
 
 <script>
+    $(document).ready(function () {
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            positionClass: 'toast-center',
+            showMethod: 'slideDown',
+            timeOut: 4000
+        };
+    });
+
     function navigate(direction) {
         var currentUrl = window.location.search;
 
@@ -210,16 +229,64 @@
         window.location.href = newUrl;
     }
 
-    function deleteData() {
-        // ... Ваш код для удаления данных ...
-    }
-
-    // Инициализация табов Bootstrap
     $('#myTabs a').on('click', function (e) {
         e.preventDefault();
         $(this).tab('show');
     });
-</script>
 
+    function submitMaxRecordsAgeSettingsForm() {
+        var form = document.getElementById('max-records-age-settings-form');
+        var formData = new FormData(form);
+
+        fetch('/api/v1/data/settings', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                toastr.success('Налаштування збережено!', 'Успіх');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function submitDeleteAllBeforeDateSettingsForm() {
+        var form = document.getElementById('delete-all-before-date-settings-form');
+        var formData = new FormData(form);
+
+        fetch('/api/v1/data/delete', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                toastr.success('Операція завершена успішно!', 'Успіх');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function submitDeleteDateForm() {
+        var form = document.getElementById('delete-date-settings-form');
+        var formData = new FormData(form);
+
+        fetch('/api/v1/data/delete_by_date', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                toastr.success('Операція завершена успішно!', 'Успіх');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
 </body>
 </html>

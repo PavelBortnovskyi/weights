@@ -28,4 +28,6 @@ public interface MealRepository extends RepositoryInterface<Meal> {
     void deleteByDateBefore(LocalDate date);
 
     long countByDateBefore(LocalDate date);
+
+    void deleteByDate(LocalDate date);
 }

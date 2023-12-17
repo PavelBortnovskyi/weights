@@ -26,4 +26,6 @@ public interface SeedRepository extends RepositoryInterface<Seed> {
     void deleteByDateBefore(LocalDate date);
 
     long countByDateBefore(LocalDate date);
+
+    void deleteByDate(LocalDate date);
 }

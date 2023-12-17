@@ -28,4 +28,6 @@ public interface OilRepository extends JpaRepository<Oil, Long> {
 
     void deleteByDateBefore(LocalDate date);
     long countByDateBefore(LocalDate date);
+
+    void deleteByDate(LocalDate date);
 }

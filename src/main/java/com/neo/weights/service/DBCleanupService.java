@@ -1,12 +1,12 @@
 package com.neo.weights.service;
 
-import com.neo.weights.model.Seed;
 import com.neo.weights.model.Setting;
 import com.neo.weights.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -14,7 +14,8 @@ import java.util.Optional;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class DataCleanupService {
+public class DBCleanupService {
+
     private final SeedRepository seedRepository;
     private final HullRepository hullRepository;
     private final MealRepository mealRepository;
@@ -23,8 +24,9 @@ public class DataCleanupService {
 
     private LocalDate cutoffDate = LocalDate.now().minusYears(1);
 
+    @Transactional
     @Scheduled(cron = "0 0 16 * * 5") // запланова очистка кожної п'ятниці о 16:00
-    public void cleanupOldData() {
+    public synchronized void cleanupOldData() {
         Optional<Setting> maybeUserSetting = settingRepository.findById(1L);
         if (maybeUserSetting.isPresent()) {
             Setting userSetting = maybeUserSetting.get();
@@ -40,6 +42,7 @@ public class DataCleanupService {
         this.deleteRecordsBefore(cutoffDate);
     }
 
+    @Transactional
     public void deleteAllBefore(LocalDate cutoffDate) {
         this.deleteRecordsBefore(cutoffDate);
     }
@@ -47,7 +50,22 @@ public class DataCleanupService {
     public void setDateCleanupParams(String recordAgeType, Integer recordAgeValue) {
         if (this.settingRepository.findById(1L).isEmpty()) {
             this.settingRepository.save(new Setting(recordAgeType, recordAgeValue));
-        } else this.settingRepository.changeRecordAgeParams(recordAgeType, recordAgeValue);
+            log.info(String.format("Created user settings record with params recordAgeType = %s, recordAgeValue == %d",
+                    recordAgeType, recordAgeValue));
+        } else {
+            log.info(String.format("User settings record changed with params recordAgeType = %s, recordAgeValue == %d",
+                    recordAgeType, recordAgeValue));
+            this.settingRepository.changeRecordAgeParams(recordAgeType, recordAgeValue);
+        }
+    }
+
+    @Transactional
+    public void deleteDate(LocalDate deleteDate) {
+        this.seedRepository.deleteByDate(deleteDate);
+        this.hullRepository.deleteByDate(deleteDate);
+        this.mealRepository.deleteByDate(deleteDate);
+        this.oilRepository.deleteByDate(deleteDate);
+        log.info("Deleted all records at " + deleteDate);
     }
 
     private void deleteRecordsBefore(LocalDate cutoffDate) {
@@ -57,7 +75,7 @@ public class DataCleanupService {
             hullRepository.deleteByDateBefore(cutoffDate);
             mealRepository.deleteByDateBefore(cutoffDate);
             oilRepository.deleteByDateBefore(cutoffDate);
-            log.info(String.format("%d records was deleted"), numberRecordsToRemove);
+            log.info(String.format("%d records was deleted", numberRecordsToRemove));
         } else log.info("No records for delete found");
     }
 }

@@ -11,14 +11,16 @@ import java.util.Arrays;
 public class StaticContent implements WebMvcConfigurer {
 
     private String[][] pageMappings = {
-            // http   file (related to templates folder)
-            {"production", "table"}
+            //http         file (related to templates folder)
+            {"production_view", "table"}
     };
 
     private String[][] staticMappings = {
             // http     real file location
             {"/css/**", "classpath:/static/css/"},
-            {"/img/**", "classpath:/static/img/"}
+            {"/img/**", "classpath:/static/img/"},
+            {"/js/**", "classpath:/static/js/"},
+            {"/map/**", "classpath:/static/map/"}
     };
 
     @Override

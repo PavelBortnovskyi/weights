@@ -27,4 +27,6 @@ public interface HullRepository extends RepositoryInterface<Hull> {
     void deleteByDateBefore(LocalDate date);
 
     long countByDateBefore(LocalDate date);
+
+    void deleteByDate(LocalDate date);
 }
