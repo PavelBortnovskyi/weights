@@ -143,10 +143,10 @@
 
                 <tr>
                     <td><b>УСЬОГО:</b></td>
-                    <td><b><span th:text="${#aggregates.sum(dataPage.content.![seeds])}" class="number"></span></b></td>
-                    <td><b><span th:text="${#aggregates.sum(dataPage.content.![hulls])}" class="number"></span></b></td>
-                    <td><b><span th:text="${#aggregates.sum(dataPage.content.![meals])}" class="number"></span></b></td>
-                    <td><b><span th:text="${#aggregates.sum(dataPage.content.![oil])}" class="number"></span></b></td>
+                    <td><b><span th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![seeds]), 1, 2)}" class="number"></span></b></td>
+                    <td><b><span th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![hulls]), 1, 2)}" class="number"></span></b></td>
+                    <td><b><span th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![meals]), 1, 2)}" class="number"></span></b></td>
+                    <td><b><span th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![oil]), 1, 2)}" class="number"></span></b></td>
                     <td></td>
                 </tr>
                 </tbody>
@@ -160,13 +160,15 @@
                 збереження даних у БД. Від величини діапазону прямопропорційно залежатиме розмір БД, та її швидкодія.
                 Для підтвердження натисніть кнопку "Застосувати". За замовчуванням сервер буде видаляти усі дані які старіші ніж рік від поточної дати.
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
                 <label for="records-age-type">Оберіть період:</label>
                 <select id="records-age-type" name="records-age-type">
                     <option value="days">Дні</option>
                     <option value="months">Місяці</option>
                     <option value="years">Роки</option>
                 </select>
+            </div>
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
                 <label for="records-age-value">Кількість:</label>
                 <input type="number" class="form-control custom-width2" id="records-age-value" name="records-age-value" min="1" required>
             </div>
@@ -176,7 +178,7 @@
             <div>Нижче ви можете обрати дату, всі записи до якої
                 буде видалено із БД після натиснення кнопки "Видалити дані".
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
                 <label for="cutoffDate">Оберіть дату: </label>
                 <input type="date" class="form-control custom-width" id="cutoffDate" name="cutoffDate" required/>
             </div>
@@ -185,36 +187,44 @@
         <form id="delete-date-settings-form">
             <div>Нижче ви можете обрати дату за яку буде видалено усі данні після натиснення кнопки "Видалити дані".
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
                 <label for="delete-date">Оберіть дату: </label>
                 <input type="date" class="form-control custom-width" id="delete-date" name="deleteDate" required/>
             </div>
             <button type="button" class="btn btn-danger" th:onclick="submitDeleteDateForm()">Видалити дані</button>
         </form>
         <form id="exportForm">
-            <div>Нижче ви можете обрати діапазон дат для експорту в Excel файл, вказавши до нього шлях та натиснувши кнопку "Експортувати".
+            <div>Нижче ви можете обрати діапазон дат та часу для експорту в Excel файл та звантажити його натиснувши кнопку "Експортувати".
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
             <label for="exportStartDate">Дата початку:</label>
             <input type="date" class="form-control custom-width" id="exportStartDate" name="exportStartDate" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
             <label for="exportEndDate">Дата завершення:</label>
             <input type="date" class="form-control custom-width" id="exportEndDate" name="exportEndDate" required>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
             <label for="exportStartTime" class="mr-2">Час початку:</label>
-            <input type="time" class="form-control custom-width" id="exportStartTime" name="startTime" value="00:00" required/>
+            <input type="time" class="form-control custom-width" id="exportStartTime" name="exportStartTime" value="00:00" required/>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
             <label for="exportEndTime" class="mr-2">Час завершення:</label>
-            <input type="time" class="form-control custom-width" id="exportEndTime" name="endTime" value="23:59" required/>
+            <input type="time" class="form-control custom-width" id="exportEndTime" name="exportEndTime" value="23:59" required/>
             </div>
 
-            <button type="submit"  class="btn btn-success" th:onclick="submitExportForm()">Експортувати</button>
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
+                <label for="export-type">Оберіть формат:</label>
+                <select id="export-type" name="exportType">
+                    <option value="excel">Excel</option>
+                    <option value="pdf">PDF</option>
+                </select>
+            </div>
+
+            <button type="submit"  class="btn btn-success" th:onclick="'submitExportForm(event)'">Експортувати</button>
         </form>
     </div>
 </div>
@@ -313,22 +323,44 @@
             });
     }
 
-    function submitExportForm() {
+    function submitExportForm(event) {
+        event.preventDefault()
         var form = document.getElementById('exportForm');
         var formData = new FormData(form);
+
+        var fileTypeSelector = document.getElementById('export-type');
+        var fileType = fileTypeSelector.value;
 
         fetch('/api/v1/export', {
             method: 'POST',
             body: formData
         })
-            .then(response => response.arrayBuffer())
+            .then(response => response.blob())
             .then(data => {
-                console.log(data);
-                toastr.success('Операція завершена успішно!', 'Успіх');
+                var extension = getFileExtension(fileType);
+                var filename = 'data.' + extension;
+                var url = window.URL.createObjectURL(data);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                toastr.success('Проведено експортування даних', 'Успіх');
             })
             .catch(error => {
                 console.error('Error:', error);
+                toastr.error('Помилка при експорті даних', 'Помилка');
             });
+    }
+
+    function getFileExtension(fileType) {
+        switch (fileType) {
+            case 'excel':
+                return 'xlsx';
+            case 'pdf':
+                return 'pdf';
+        }
     }
 </script>
 </body>

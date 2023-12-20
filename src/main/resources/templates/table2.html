@@ -154,6 +154,7 @@
         </div>
     </div>
 
+    <!-- Вкладка с настройками -->
     <div class="tab-pane fade" id="settings">
         <form id="max-records-age-settings-form">
             <div>Нижче ви можете обрати максимальний діапазон
@@ -195,16 +196,24 @@
             <div>Нижче ви можете обрати діапазон дат для експорту в Excel файл, вказавши до нього шлях та натиснувши кнопку "Експортувати".
             </div>
             <label for="startDate">Start Date:</label>
-            <input type="date" class="form-control custom-width" id="exportStartDate" name="exportStartDate" required>
+            <input type="date" id="exportStartDate" name="exportStartDate" required>
 
             <label for="endDate">End Date:</label>
-            <input type="date" class="form-control custom-width" id="exportEndDate" name="exportEndDate" required>
+            <input type="date" id="exportEndDate" name="exportEndDate" required>
 
             <label for="startTime" class="mr-2">Час початку:</label>
             <input type="time" class="form-control" id="exportStartTime" name="startTime" value="00:00" required/>
 
             <label for="endTime" class="mr-2">Час завершення:</label>
             <input type="time" class="form-control" id="exportEndTime" name="endTime" value="23:59" required/>
+
+            <label for="directoryInput">Выберите директорию:</label>
+            <input type="file" id="directoryInput" name="directoryPath" webkitdirectory directory accept="" multiple>
+            <br>
+
+            <label for="directoryPath">Зберегти сюди:</label>
+            <input type="text" id="directoryPath" name="directoryPath" required readonly>
+            <input type="button" value="Обрати директорію" th:onclick="selectDirectory()"><br>
 
             <button type="submit" th:onclick="submitExportForm()">Експортувати</button>
         </form>
@@ -249,6 +258,14 @@
         e.preventDefault();
         $(this).tab('show');
     });
+
+    function selectDirectory() {
+        window.showDirectoryPicker().then(directory => {
+            document.getElementById('directoryPath').value = directory.name;
+        }).catch(error => {
+            console.error('Помилка вибору директорії:', error);
+        });
+    }
 
     function submitMaxRecordsAgeSettingsForm() {
         var form = document.getElementById('max-records-age-settings-form');

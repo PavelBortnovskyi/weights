@@ -1,7 +1,9 @@
 package com.neo.weights.controller;
 
+import com.neo.weights.helpers.ExporterFactory;
 import com.neo.weights.model.TableData;
 import com.neo.weights.service.ExcelExportService;
+import com.neo.weights.service.Exporter;
 import com.neo.weights.service.TableDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -33,7 +35,7 @@ public class ProductionViewController {
 
     private final TableDataService tableDataService;
 
-    private final ExcelExportService excelExportService;
+    private final ExporterFactory exporterFactory;
 
     //http://localhost:8080/api/v1/production_view
     @GetMapping("/production_view")
@@ -74,13 +76,19 @@ public class ProductionViewController {
             @RequestParam("exportStartDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam("exportEndDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
             @RequestParam("exportStartTime") @DateTimeFormat(pattern = "HH:mm") LocalTime startTime,
-            @RequestParam("exportEndTime") @DateTimeFormat(pattern = "HH:mm") LocalTime endTime) throws IOException {
+            @RequestParam("exportEndTime") @DateTimeFormat(pattern = "HH:mm") LocalTime endTime,
+            @RequestParam("exportType") String exportType) throws IOException {
 
+        String fileExtension = "";
+        switch (exportType){
+            case "excel" -> fileExtension = ".xlsx";
+            case "pdf" -> fileExtension = ".pdf";
+        }
         HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=data.xls");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=data" + fileExtension);
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
-        Resource export = excelExportService.exportToExcel(tableDataService.getDataFromPeriod(startDate, endDate, startTime, endTime));
+        Resource export = exporterFactory.getExporter(exportType).export(tableDataService.getDataFromPeriod(startDate, endDate, startTime, endTime));
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentLength(export.contentLength())

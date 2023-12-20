@@ -14,9 +14,9 @@ import java.util.List;
 
 @Log4j2
 @Service
-public class ExcelExportService {
+public class ExcelExportService implements Exporter{
 
-    public Resource exportToExcel(List<TableData> dataList) {
+    public Resource export(List<TableData> dataList) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
@@ -28,11 +28,16 @@ public class ExcelExportService {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(columns[i]);
             }
+            CellStyle dateCellStyle = workbook.createCellStyle();
+            DataFormat dataFormat = workbook.createDataFormat();
+            dateCellStyle.setDataFormat(dataFormat.getFormat("dd-MM-yyyy"));
 
             int rowNum = 1;
             for (TableData data : dataList) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(data.getDate());
+                Cell dataCell = row.createCell(0);
+                dataCell.setCellStyle(dateCellStyle);
+                dataCell.setCellValue(data.getDate());
                 row.createCell(1).setCellValue(data.getTime().toString());
                 row.createCell(2).setCellValue(data.getSeeds());
                 row.createCell(3).setCellValue(data.getHulls());
