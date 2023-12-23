@@ -20,8 +20,6 @@ public class Oil {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-//    private Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-
     private LocalDate date = LocalDate.now();
 
     private LocalTime time = LocalTime.now();

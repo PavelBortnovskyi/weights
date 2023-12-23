@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface Exporter {
 
-    public Resource export(List<TableData> data);
+    public Resource export(List<TableData> data, List<String> columnsFromParam);
 }
