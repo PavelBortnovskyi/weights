@@ -64,7 +64,7 @@ public class ProductionViewController {
                 model.addAttribute("dataPage", dataPage);
             }
         }
-        return new ModelAndView("table2");
+        return new ModelAndView("table");
     }
 
     @PostMapping("/production_view")
