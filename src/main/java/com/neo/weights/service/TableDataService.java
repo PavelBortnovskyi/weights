@@ -27,6 +27,8 @@ public class TableDataService {
     private final MealRepository mealRepository;
     private final OilRepository oilRepository;
 
+    private final DataExtractor dataExtractor;
+
     @Transactional
     public void saveData(InputDataDTO inputDataDTO) {
         Seed seed = new Seed();
@@ -56,50 +58,29 @@ public class TableDataService {
         this.oilRepository.save(oil);
     }
 
-    public Page<TableData> getPageDataFromPeriod(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, Pageable pageable) {
 
-        List<TableData> combinedList = new ArrayList<>();
+    public List<TableData> getDataFromPeriod(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, List<String> paramTypes) {
+        return getPageDataFromPeriod(startDate, endDate, startTime, endTime, Pageable.ofSize(Integer.MAX_VALUE), paramTypes).getContent();
+    }
+
+    public Page<TableData> getPageDataFromPeriod(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime,
+                                                 Pageable pageable, List<String> paramTypes) {
+        List<TableData> result = new ArrayList<>();
         Page<Seed> seedsPage = seedRepository.getSeedsDataAtPeriod(startDate, endDate, startTime, endTime, pageable);
         Page<Hull> hullsPage = hullRepository.getHullsDataAtPeriod(startDate, endDate, startTime, endTime, pageable);
         Page<Meal> mealsPage = mealRepository.getMealsDataAtPeriod(startDate, endDate, startTime, endTime, pageable);
         Page<Oil> oilPage = oilRepository.getOilDataAtPeriod(startDate, endDate, startTime, endTime, pageable);
 
-        int combinedPointer = 0;
         for (int i = 0; i < seedsPage.getContent().size(); i++) {
             TableData data = new TableData();
             data.setDate(seedsPage.getContent().get(i).getDate());
             data.setTime(seedsPage.getContent().get(i).getTime());
-            data.setSeeds(seedsPage.getContent().get(i).getProd());
-            data.setHulls(hullsPage.getContent().get(i).getProd());
-            data.setMeals(mealsPage.getContent().get(i).getProd());
-            data.setOil(oilPage.getContent().get(i).getOilCounter());
-            if (combinedList.size() == 0 || (combinedList.get(combinedPointer - 1).getTime().getHour() != data.getTime().getHour())) {
-                combinedList.add(data);
-                combinedPointer++;
-            }
+            data.setSeeds(dataExtractor.extract(seedsPage, i, paramTypes.get(0)));
+            data.setHulls(dataExtractor.extract(hullsPage, i, paramTypes.get(1)));
+            data.setMeals(dataExtractor.extract(mealsPage, i, paramTypes.get(2)));
+            data.setOil(dataExtractor.extract(oilPage, i, paramTypes.get(3)));
+            result.add(data);
         }
-
-        return new PageImpl<>(combinedList, pageable, seedsPage.getTotalElements());
+        return new PageImpl<>(result, pageable, seedsPage.getTotalElements());
     }
-
-//    public List<TableData> getDataFromPeriod(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-//
-//        List<TableData> result = new ArrayList<>();
-//        Page<Seed> seedsPage = seedRepository.getSeedsDataAtPeriod(startDate, endDate, startTime, endTime, Pageable.ofSize(24));
-//        Page<Hull> hullsPage = hullRepository.getHullsDataAtPeriod(startDate, endDate, startTime, endTime, Pageable.ofSize(24));
-//        Page<Meal> mealsPage = mealRepository.getMealsDataAtPeriod(startDate, endDate, startTime, endTime, Pageable.ofSize(24));
-//        Page<Oil> oilPage = oilRepository.getOilDataAtPeriod(startDate, endDate, startTime, endTime, Pageable.ofSize(24));
-//
-//        System.out.println(seedsPage.getContent());
-//        for (int i = 1; i < seedsPage.getTotalElements(); i++) {
-//            TableData data = new TableData();
-//            data.setTime(seedsPage.getContent().get(i).getTime());
-//            data.setSeeds(seedsPage.getContent().get(i).getProd());
-//            data.setHulls(hullsPage.getContent().get(i).getProd());
-//            data.setMeals(mealsPage.getContent().get(i).getProd());
-//            data.setOil(oilPage.getContent().get(i).getOilCounter());
-//            result.add(data);
-//        }
-//        return result;
-//    }
 }
