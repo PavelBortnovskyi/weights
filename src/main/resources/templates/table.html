@@ -58,6 +58,17 @@
             border-color: transparent; /* Колір контуру вкладок */
             border-width: 0; /* Ширина контуру вкладок (0 для вимкнення контуру) */
         }
+        .select {
+            display: inline-block;
+            width: 10em;
+        }
+        .label {
+            display: inline-block;
+            width: 10em;
+            margin-right: .5em;
+            padding-top: 1.5em;
+            text-align:center;
+        }
     </style>
 </head>
 <body>
@@ -111,54 +122,89 @@
 
             <button type="submit" class="btn btn-success mb-2 ml-auto">Показати</button>
 
+            <div class="container-fluid">
+                <div class="d-flex justify-content-center mb-3">
+                    <div style="font-weight: bold;" class="text-center" th:if="${dataPage != null and not dataPage.isEmpty}">
+                        <p>Показ інформації за: <span th:text="${dataPage.content[0].date}"></span></p>
+                    </div>
+                </div>
+                <table id="dataTable" class="table table-bordered">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>Час</th>
+                        <th>
+                            <select id="seed-content" name="seedRecordType">
+                                <option value="seedProd">seedProd</option>
+                                <option value="seedProdCurrent">seedProdCurrent</option>
+                                <option value="seedChangeCounter">seedChangeCounter</option>
+                                <option value="seedConstCounter">seedConstCounter</option>
+                            </select>
+                        </th>
+                        <th>
+                            <select id="hull-content" name="hullRecordType">
+                                <option value="hullProd">hullProd</option>
+                                <option value="hullProdCurrent">hullProdCurrent</option>
+                                <option value="hullChangeCounter">hullChangeCounter</option>
+                                <option value="hullConstCounter">hullConstCounter</option>
+                            </select>
+                        </th>
+                        <th>
+                            <select id="meal-content" name="mealRecordType">
+                                <option value="mealProd">mealProd</option>
+                                <option value="mealProdCurrent">mealProdCurrent</option>
+                                <option value="mealChangeCounter">mealChangeCounter</option>
+                                <option value="mealConstCounter">mealConstCounter</option>
+                            </select>
+                        </th>
+                        <th>
+                            <select id="oil-content" name="oilRecordType">
+                                <option value="oilFT">oilFT</option>
+                                <option value="oilCounter">oilCounter</option>
+                            </select>
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tr th:if="${dataPage == null or dataPage.isEmpty}">
+                        <td colspan="5">Немає інформації за обраний період</td>
+                    </tr>
+
+                    <tbody th:if="${dataPage != null and not dataPage.isEmpty}">
+                    <tr th:each="data,row : ${dataPage.content}" th:class="${row.odd}? 'odd'">
+                        <td th:text="${data.time}"></td>
+                        <td th:text="${data.seeds}" class="number"></td>
+                        <td th:text="${data.hulls}" class="number"></td>
+                        <td th:text="${data.meals}" class="number"></td>
+                        <td th:text="${data.oil}" class="number"></td>
+                    </tr>
+
+                    <tr>
+                        <td><b>УСЬОГО:</b></td>
+                        <td><b><span
+                                th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![seeds]), 1, 2)}"
+                                class="number"></span></b></td>
+                        <td><b><span
+                                th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![hulls]), 1, 2)}"
+                                class="number"></span></b></td>
+                        <td><b><span
+                                th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![meals]), 1, 2)}"
+                                class="number"></span></b></td>
+                        <td><b><span
+                                th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![oil]), 1, 2)}"
+                                class="number"></span></b></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </form>
-        <div class="text-center" th:if="${dataPage != null and not dataPage.isEmpty}">
-            <p>Показ інформації за: <span th:text="${dataPage.content[0].date}"></span></p>
-        </div>
-
-        <div>
-            <table id="dataTable" class="table table-bordered">
-                <thead class="thead-dark">
-                <tr>
-                    <th>Час</th>
-                    <th>Насіння, т</th>
-                    <th>Лушпиння, т</th>
-                    <th>Шрот, т</th>
-                    <th>Олія, т</th>
-                </tr>
-                </thead>
-
-                <tr th:if="${dataPage == null or dataPage.isEmpty}">
-                    <td colspan="5">Немає інформації за обраний період</td>
-                </tr>
-
-                <tbody th:if="${dataPage != null and not dataPage.isEmpty}">
-                <tr th:each="data,row : ${dataPage.content}" th:class="${row.odd}? 'odd'">
-                    <td th:text="${data.time}"></td>
-                    <td th:text="${data.seeds}" class="number"></td>
-                    <td th:text="${data.hulls}" class="number"></td>
-                    <td th:text="${data.meals}" class="number"></td>
-                    <td th:text="${data.oil}" class="number"></td>
-                </tr>
-
-                <tr>
-                    <td><b>УСЬОГО:</b></td>
-                    <td><b><span th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![seeds]), 1, 2)}" class="number"></span></b></td>
-                    <td><b><span th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![hulls]), 1, 2)}" class="number"></span></b></td>
-                    <td><b><span th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![meals]), 1, 2)}" class="number"></span></b></td>
-                    <td><b><span th:text="${#numbers.formatDecimal(#aggregates.sum(dataPage.content.![oil]), 1, 2)}" class="number"></span></b></td>
-                    <td></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
 
     <div class="tab-pane fade" id="settings">
         <form id="max-records-age-settings-form">
-            <div>Нижче ви можете обрати максимальний діапазон
+            <div style="font-weight: bold;">Нижче ви можете обрати максимальний діапазон
                 збереження даних у БД. Від величини діапазону прямопропорційно залежатиме розмір БД, та її швидкодія.
-                Для підтвердження натисніть кнопку "Застосувати". За замовчуванням сервер буде видаляти усі дані які старіші ніж рік від поточної дати.
+                Для підтвердження натисніть кнопку "Застосувати". За замовчуванням сервер буде видаляти усі дані які
+                старіші ніж рік від поточної дати.
             </div>
             <div class="form-group" style="display: inline-block; margin-right: 10px;">
                 <label for="records-age-type">Оберіть період:</label>
@@ -170,22 +216,26 @@
             </div>
             <div class="form-group" style="display: inline-block; margin-right: 10px;">
                 <label for="records-age-value">Кількість:</label>
-                <input type="number" class="form-control custom-width2" id="records-age-value" name="records-age-value" min="1" required>
+                <input type="number" class="form-control custom-width2" id="records-age-value" name="records-age-value"
+                       min="1" required>
             </div>
-            <button type="button" class="btn btn-success" th:onclick="submitMaxRecordsAgeSettingsForm()">Застосувати</button>
+            <button type="button" class="btn btn-success" th:onclick="submitMaxRecordsAgeSettingsForm()">Застосувати
+            </button>
         </form>
         <form id="delete-all-before-date-settings-form">
-            <div>Нижче ви можете обрати дату, всі записи до якої
+            <div style="font-weight: bold;">Нижче ви можете обрати дату, всі записи до якої
                 буде видалено із БД після натиснення кнопки "Видалити дані".
             </div>
             <div class="form-group" style="display: inline-block; margin-right: 10px;">
                 <label for="cutoffDate">Оберіть дату: </label>
                 <input type="date" class="form-control custom-width" id="cutoffDate" name="cutoffDate" required/>
             </div>
-            <button type="button" class="btn btn-danger" th:onclick="submitDeleteAllBeforeDateSettingsForm()">Видалити дані</button>
+            <button type="button" class="btn btn-danger" th:onclick="submitDeleteAllBeforeDateSettingsForm()">Видалити
+                дані
+            </button>
         </form>
         <form id="delete-date-settings-form">
-            <div>Нижче ви можете обрати дату за яку буде видалено усі данні після натиснення кнопки "Видалити дані".
+            <div style="font-weight: bold;">Нижче ви можете обрати дату за яку буде видалено усі данні після натиснення кнопки "Видалити дані".
             </div>
             <div class="form-group" style="display: inline-block; margin-right: 10px;">
                 <label for="delete-date">Оберіть дату: </label>
@@ -194,26 +244,72 @@
             <button type="button" class="btn btn-danger" th:onclick="submitDeleteDateForm()">Видалити дані</button>
         </form>
         <form id="exportForm">
-            <div>Нижче ви можете обрати діапазон дат та часу для експорту в Excel файл та звантажити його натиснувши кнопку "Експортувати".
+            <div style="font-weight: bold;">Нижче ви можете обрати діапазон дат та часу для експорту в Excel файл та звантажити його натиснувши
+                кнопку "Експортувати".
             </div>
             <div class="form-group" style="display: inline-block; margin-right: 10px;">
-            <label for="exportStartDate">Дата початку:</label>
-            <input type="date" class="form-control custom-width" id="exportStartDate" name="exportStartDate" required>
-            </div>
-
-            <div class="form-group" style="display: inline-block; margin-right: 10px;">
-            <label for="exportEndDate">Дата завершення:</label>
-            <input type="date" class="form-control custom-width" id="exportEndDate" name="exportEndDate" required>
+                <label for="exportStartDate">Дата початку:</label>
+                <input type="date" class="form-control custom-width" id="exportStartDate" name="exportStartDate"
+                       required>
             </div>
 
             <div class="form-group" style="display: inline-block; margin-right: 10px;">
-            <label for="exportStartTime" class="mr-2">Час початку:</label>
-            <input type="time" class="form-control custom-width" id="exportStartTime" name="exportStartTime" value="00:00" required/>
+                <label for="exportEndDate">Дата завершення:</label>
+                <input type="date" class="form-control custom-width" id="exportEndDate" name="exportEndDate" required>
             </div>
 
             <div class="form-group" style="display: inline-block; margin-right: 10px;">
-            <label for="exportEndTime" class="mr-2">Час завершення:</label>
-            <input type="time" class="form-control custom-width" id="exportEndTime" name="exportEndTime" value="23:59" required/>
+                <label for="exportStartTime" class="mr-2">Час початку:</label>
+                <input type="time" class="form-control custom-width" id="exportStartTime" name="exportStartTime"
+                       value="00:00" required/>
+            </div>
+
+            <div class="form-group" style="display: inline-block; margin-right: 10px;">
+                <label for="exportEndTime" class="mr-2">Час завершення:</label>
+                <input type="time" class="form-control custom-width" id="exportEndTime" name="exportEndTime"
+                       value="23:59" required/>
+            </div>
+
+            <div class="form-group" style="display: inline-block">
+                <label for="export-seed-content" class="label">Колонка параметрів насіння
+                    <select id="export-seed-content" class="select" name="seedRecordType">
+                        <option value="seedProd">seedProd</option>
+                        <option value="seedProdCurrent">seedProdCurrent</option>
+                        <option value="seedChangeCounter">seedChangeCounter</option>
+                        <option value="seedConstCounter">seedConstCounter</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-group" style="display: inline-block">
+                <label for="export-hull-content" class="label">Колонка параметрів лушпиння
+                    <select id="export-hull-content" class="select" name="hullRecordType">
+                        <option value="hullProd">hullProd</option>
+                        <option value="hullProdCurrent">hullProdCurrent</option>
+                        <option value="hullChangeCounter">hullChangeCounter</option>
+                        <option value="hullConstCounter">hullConstCounter</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-group" style="display: inline-block">
+                <label for="export-meal-content" class="label">Колонка параметрів шроту
+                    <select id="export-meal-content" class="select" name="mealRecordType">
+                        <option value="mealProd">mealProd</option>
+                        <option value="mealProdCurrent">mealProdCurrent</option>
+                        <option value="mealChangeCounter">mealChangeCounter</option>
+                        <option value="mealConstCounter">mealConstCounter</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="form-group" style="display: inline-block">
+                <label for="export-oil-content" class="label">Колонка параметрів олії
+                    <select id="export-oil-content" class="select" name="oilRecordType">
+                        <option value="oilFT">oilFT</option>
+                        <option value="oilCounter">oilCounter</option>
+                    </select>
+                </label>
             </div>
 
             <div class="form-group" style="display: inline-block; margin-right: 10px;">
@@ -224,8 +320,9 @@
                 </select>
             </div>
 
-            <button type="submit"  class="btn btn-success" th:onclick="'submitExportForm(event)'">Експортувати</button>
+            <button type="submit" class="btn btn-success" th:onclick="'submitExportForm(event)'">Експортувати</button>
         </form>
+
     </div>
 </div>
 
@@ -244,6 +341,24 @@
             showMethod: 'slideDown',
             timeOut: 4000
         };
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var selectors = document.querySelectorAll("select");
+
+        selectors.forEach(function (selector) {
+            selector.addEventListener("change", function () {
+                var selectedValue = selector.value;
+                var selectorId = selector.id;
+                localStorage.setItem(selectorId, selectedValue);
+            });
+
+            // Set the selected value from localStorage
+            var storedValue = localStorage.getItem(selector.id);
+            if (storedValue) {
+                selector.value = storedValue;
+            }
+        });
     });
 
     function navigate(direction) {

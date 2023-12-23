@@ -16,14 +16,20 @@ import java.util.List;
 @Service
 public class ExcelExportService implements Exporter{
 
-    public Resource export(List<TableData> dataList) {
+    public Resource export(List<TableData> dataList, List<String> columnsFromParam) {
         try (Workbook workbook = new XSSFWorkbook();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
             Sheet sheet = workbook.createSheet("Data");
 
             Row headerRow = sheet.createRow(0);
-            String[] columns = {"Дата", "Час", "Насіння, т", "Лушпиння, т", "Шрот, т", "Олія, т"};
+            String[] columns = new String[2 + columnsFromParam.size()];
+            columns[0] = "Дата";
+            columns[1] = "Час";
+            for (int i = 0; i < columnsFromParam.size(); i++) {
+                columns[i + 2]=columnsFromParam.get(i);
+            }
+
             for (int i = 0; i < columns.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(columns[i]);
