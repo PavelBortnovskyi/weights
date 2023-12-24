@@ -26,7 +26,6 @@ public class TableDataService {
     private final HullRepository hullRepository;
     private final MealRepository mealRepository;
     private final OilRepository oilRepository;
-
     private final DataExtractor dataExtractor;
 
     @Transactional

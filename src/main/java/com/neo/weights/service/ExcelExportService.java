@@ -53,11 +53,11 @@ public class ExcelExportService implements Exporter{
 
             workbook.write(outputStream);
             byte[] fileContent = outputStream.toByteArray();
-            log.info(String.format("Exported %d records from %s to %s",
+            log.info(String.format("Exported in Excel %d records from %s to %s",
                     dataList.size(), dataList.get(0).getDate(), dataList.get(dataList.size() - 1).getDate()));
             return new ByteArrayResource(fileContent);
         } catch (IOException e) {
-            log.error("Error during data export: " + e.getMessage(), e);
+            log.error("Error during data export to Excel: " + e.getMessage(), e);
             return null;
         }
     }

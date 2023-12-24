@@ -75,7 +75,7 @@ public class DBCleanupService {
             hullRepository.deleteByDateBefore(cutoffDate);
             mealRepository.deleteByDateBefore(cutoffDate);
             oilRepository.deleteByDateBefore(cutoffDate);
-            log.info(String.format("%d records was deleted", numberRecordsToRemove));
+            log.info(String.format("%d records was deleted before cutoff date %s", numberRecordsToRemove, cutoffDate.toString()));
         } else log.info("No records for delete found");
     }
 }

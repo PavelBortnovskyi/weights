@@ -1,7 +1,6 @@
 package com.neo.weights.controller;
 
 import com.neo.weights.constants.Parameters;
-import com.neo.weights.constants.RecordType;
 import com.neo.weights.helpers.ExporterFactory;
 import com.neo.weights.model.TableData;
 import com.neo.weights.service.TableDataService;
@@ -21,15 +20,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.awt.print.PrinterAbortException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Log4j2
@@ -39,7 +35,6 @@ import java.util.Map;
 public class ProductionViewController {
 
     private final TableDataService tableDataService;
-
     private final ExporterFactory exporterFactory;
 
     //http://localhost:8080/api/v1/production_view

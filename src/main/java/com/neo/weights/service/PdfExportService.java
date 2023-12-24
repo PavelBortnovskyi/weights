@@ -54,10 +54,11 @@ public class PdfExportService implements Exporter {
 
             document.save(outputStream);
             byte[] fileContent = outputStream.toByteArray();
-            log.info(String.format("Exported %d records", dataList.size()));
+            log.info(String.format("Exported in PDF %d records from %s to %s",
+                    dataList.size(), dataList.get(0).getDate(), dataList.get(dataList.size() - 1).getDate()));
             return new ByteArrayResource(fileContent);
         } catch (IOException e) {
-            log.error("Error during data export: " + e.getMessage(), e);
+            log.error("Error during data export to PDF: " + e.getMessage(), e);
             return null;
         }
     }
