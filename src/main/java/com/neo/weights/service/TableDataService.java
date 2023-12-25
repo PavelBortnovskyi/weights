@@ -70,6 +70,7 @@ public class TableDataService {
         Page<Meal> mealsPage = mealRepository.getMealsDataAtPeriod(startDate, endDate, startTime, endTime, pageable);
         Page<Oil> oilPage = oilRepository.getOilDataAtPeriod(startDate, endDate, startTime, endTime, pageable);
 
+        int resultPointer = 0;
         for (int i = 0; i < seedsPage.getContent().size(); i++) {
             TableData data = new TableData();
             data.setDate(seedsPage.getContent().get(i).getDate());
@@ -78,7 +79,10 @@ public class TableDataService {
             data.setHulls(dataExtractor.extract(hullsPage, i, paramTypes.get(1)));
             data.setMeals(dataExtractor.extract(mealsPage, i, paramTypes.get(2)));
             data.setOil(dataExtractor.extract(oilPage, i, paramTypes.get(3)));
-            result.add(data);
+            if (result.size() == 0 || (result.get(resultPointer - 1).getTime().getHour() != data.getTime().getHour())) {
+                result.add(data);
+                resultPointer++;
+            }
         }
         return new PageImpl<>(result, pageable, seedsPage.getTotalElements());
     }
