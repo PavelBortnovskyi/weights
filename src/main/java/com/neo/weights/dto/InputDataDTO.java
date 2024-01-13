@@ -6,7 +6,6 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class InputDataDTO {
-
     @NotNull(message = "Need to specify seedProd parameter!")
     Float seedProd;
 

@@ -272,43 +272,43 @@
 
             <div class="form-group" style="display: inline-block">
                 <label for="export-seed-content" class="label">Колонка параметрів насіння
-                <select id="export-seed-content" class="select" name="seedRecordType">
-                    <option value="seedProd">seedProd</option>
-                    <option value="seedProdCurrent">seedProdCurrent</option>
-                    <option value="seedChangeCounter">seedChangeCounter</option>
-                    <option value="seedConstCounter">seedConstCounter</option>
-                </select>
+                    <select id="export-seed-content" class="select" name="seedRecordType">
+                        <option value="seedProd">seedProd</option>
+                        <option value="seedProdCurrent">seedProdCurrent</option>
+                        <option value="seedChangeCounter">seedChangeCounter</option>
+                        <option value="seedConstCounter">seedConstCounter</option>
+                    </select>
                 </label>
             </div>
 
             <div class="form-group" style="display: inline-block">
                 <label for="export-hull-content" class="label">Колонка параметрів лушпиння
-                <select id="export-hull-content" class="select" name="hullRecordType">
-                    <option value="hullProd">hullProd</option>
-                    <option value="hullProdCurrent">hullProdCurrent</option>
-                    <option value="hullChangeCounter">hullChangeCounter</option>
-                    <option value="hullConstCounter">hullConstCounter</option>
-                </select>
+                    <select id="export-hull-content" class="select" name="hullRecordType">
+                        <option value="hullProd">hullProd</option>
+                        <option value="hullProdCurrent">hullProdCurrent</option>
+                        <option value="hullChangeCounter">hullChangeCounter</option>
+                        <option value="hullConstCounter">hullConstCounter</option>
+                    </select>
                 </label>
             </div>
 
             <div class="form-group" style="display: inline-block">
                 <label for="export-meal-content" class="label">Колонка параметрів шроту
-                <select id="export-meal-content" class="select" name="mealRecordType">
-                    <option value="mealProd">mealProd</option>
-                    <option value="mealProdCurrent">mealProdCurrent</option>
-                    <option value="mealChangeCounter">mealChangeCounter</option>
-                    <option value="mealConstCounter">mealConstCounter</option>
-                </select>
+                    <select id="export-meal-content" class="select" name="mealRecordType">
+                        <option value="mealProd">mealProd</option>
+                        <option value="mealProdCurrent">mealProdCurrent</option>
+                        <option value="mealChangeCounter">mealChangeCounter</option>
+                        <option value="mealConstCounter">mealConstCounter</option>
+                    </select>
                 </label>
             </div>
 
             <div class="form-group" style="display: inline-block">
                 <label for="export-oil-content" class="label">Колонка параметрів олії
-                <select id="export-oil-content" class="select" name="oilRecordType">
-                    <option value="oilFT">oilFT</option>
-                    <option value="oilCounter">oilCounter</option>
-                </select>
+                    <select id="export-oil-content" class="select" name="oilRecordType">
+                        <option value="oilFT">oilFT</option>
+                        <option value="oilCounter">oilCounter</option>
+                    </select>
                 </label>
             </div>
 
@@ -330,6 +330,7 @@
 <script src="/js/toastr.min.js"></script>
 <script src="/js/popper.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
 
 <script>
@@ -359,6 +360,14 @@
                 selector.value = storedValue;
             }
         });
+    });
+
+    document.getElementById("production_view_request").addEventListener("submit", function(event) {
+        var startDateValue = document.getElementById("startDate").value;
+        var endDateValue = document.getElementById("endDate").value;
+
+        document.getElementById("startDate").value = moment(startDateValue).format("YYYY-MM-DD");
+        document.getElementById("endDate").value = moment(endDateValue).format("YYYY-MM-DD");
     });
 
     function navigate(direction) {

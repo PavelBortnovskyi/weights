@@ -48,7 +48,8 @@ public class ProductionViewController {
         add(request.getParameter(Parameters.MEAL_RECORD_TYPE) == null ? "mealProd" : request.getParameter(Parameters.MEAL_RECORD_TYPE));
         add(request.getParameter(Parameters.OIL_RECORD_TYPE) == null ? "oilFT" : request.getParameter(Parameters.OIL_RECORD_TYPE));}};
         if (submitted.equals("true")) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yy");
+            String date = request.getParameter(Parameters.START_DATE);
+            DateTimeFormatter formatter = date.matches("\\d{1,2}.\\d{1,2}.\\d{4}") ? DateTimeFormatter.ofPattern("dd.MM.yyyy") : DateTimeFormatter.ofPattern("dd.MM.yy");
             LocalDate startDate = LocalDate.parse(request.getParameter(Parameters.START_DATE), formatter);
             LocalDate endDate = LocalDate.parse(request.getParameter(Parameters.END_DATE), formatter);
             LocalTime startTime = LocalTime.parse(request.getParameter(Parameters.START_TIME));

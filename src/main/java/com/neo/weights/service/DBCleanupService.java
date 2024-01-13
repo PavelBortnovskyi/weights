@@ -21,7 +21,6 @@ public class DBCleanupService {
     private final MealRepository mealRepository;
     private final OilRepository oilRepository;
     private final SettingRepository settingRepository;
-
     private LocalDate cutoffDate = LocalDate.now().minusYears(1);
 
     @Transactional
