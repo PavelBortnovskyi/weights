@@ -24,8 +24,9 @@ public class DataManageController {
     private final TableDataService tableDataService;
 
     @PostMapping(path = "/add", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void handleDataInput(@RequestBody InputDataDTO inputDataDTO) {
+    public ResponseEntity<String> handleDataInput(@RequestBody InputDataDTO inputDataDTO) {
         tableDataService.saveData(inputDataDTO);
+        return ResponseEntity.ok("New records added to DB");
     }
 
     @PostMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)

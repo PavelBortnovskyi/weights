@@ -33,4 +33,17 @@ public abstract class BaseEntity implements Serializable {
     private Float changeCounter;
 
     private Float constCounter;
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{" +
+                "id=" + id +
+                ", date=" + date +
+                ", time=" + time +
+                ", prod=" + prod +
+                ", prodCurrent=" + prodCurrent +
+                ", changeCounter=" + changeCounter +
+                ", constCounter=" + constCounter +
+                '}';
+    }
 }

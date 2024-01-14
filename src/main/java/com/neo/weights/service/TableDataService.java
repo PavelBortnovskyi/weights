@@ -7,6 +7,7 @@ import com.neo.weights.repository.MealRepository;
 import com.neo.weights.repository.OilRepository;
 import com.neo.weights.repository.SeedRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class TableDataService {
@@ -35,26 +37,30 @@ public class TableDataService {
         seed.setProdCurrent(inputDataDTO.getSeedProdCurrent());
         seed.setChangeCounter(inputDataDTO.getSeedChangeCounter());
         seed.setConstCounter(inputDataDTO.getSeedConstCounter());
-        this.seedRepository.save(seed);
+        seed = this.seedRepository.save(seed);
+        log.info(String.format("Seed record: %s added", seed));
 
         Hull hull = new Hull();
         hull.setProd(inputDataDTO.getHullProd());
         hull.setProdCurrent(inputDataDTO.getHullProdCurrent());
         hull.setChangeCounter(inputDataDTO.getHullChangeCounter());
         hull.setConstCounter(inputDataDTO.getHullConstCounter());
-        this.hullRepository.save(hull);
+        hull = this.hullRepository.save(hull);
+        log.info(String.format("Hull record: %s added", hull));
 
         Meal meal = new Meal();
         meal.setProd(inputDataDTO.getMealProd());
         meal.setProdCurrent(inputDataDTO.getMealProdCurrent());
         meal.setChangeCounter(inputDataDTO.getMealChangeCounter());
         meal.setConstCounter(inputDataDTO.getMealConstCounter());
-        this.mealRepository.save(meal);
+        meal = this.mealRepository.save(meal);
+        log.info(String.format("Meal record: %s added", meal));
 
         Oil oil = new Oil();
         oil.setOilFT(inputDataDTO.getOilFT());
         oil.setOilCounter(inputDataDTO.getOilCounter());
-        this.oilRepository.save(oil);
+        oil = this.oilRepository.save(oil);
+        log.info(String.format("Oil record: %s added", oil));
     }
 
 
